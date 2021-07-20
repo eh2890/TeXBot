@@ -1,9 +1,12 @@
 import requests
+import json
 import sys
-from flask import Flask, request
+import urllib.parse
+from flask import Flask, request, send_file, send_from_directory, safe_join, abort, jsonify
 import subprocess
 
 app = Flask(__name__)
+app.config["output"] = "output/"
 
 @app.route("/", methods=['POST'])
 def home():
@@ -14,14 +17,17 @@ def home():
 \\thispagestyle{empty}
 \\begin{document}
 \\begin{gather*}
-    x^2 + 4x + 4
-\\end{gather*}
+""")
+        fp.write(request.json['tex'])
+        fp.write("""\\end{gather*}
 \\end{document}
 """)
         fp.close()
         subprocess.call(['./compile.sh'])
-        print(request.form['tex'])
-        return request.form['tex']
+        try:
+            return send_from_directory(app.config["output"], filename="output.png", as_attachment=True)
+        except FileNotFoundError:
+            abort(404)
 
 
 
