@@ -1,5 +1,6 @@
 import os
 from slack_bolt import App
+import requests
 
 # Initializes your app with your bot token and signing secret
 app = App(
@@ -7,30 +8,29 @@ app = App(
     signing_secret=os.environ.get("SLACK_SIGNING_SECRET")
 )
 
-@app.command("/echo")
-def repeat_text(ack, say, command):
-    print("echo")
-    content = command['text']
-    replaced = content.replace("\\", "\\\\")
-    ack()
-    say(f"{replaced}")
-    say(f"{command['text']}")
-
 @app.command("/tex")
 def tex(ack, say, command):
+    content = command['text']
+    # replace url
+    r = requests.post('http://0.0.0.0:5000/', json={"tex": content})
+    code = r.status_code
+    print("Code: " + str(code))
+    if code != 204:
+        ack()
+        say("Syntax Error: " + content)
+        return None
     ack()
+    # replace image_url
     say(
         blocks = [
             {
                 "type": "image",
-                "image_url": "https://i1.wp.com/thetempest.co/wp-content/uploads/2017/08/The-wise-words-of-Michael-Scott-Imgur-2.jpg?w=1024&ssl=1",
-                "alt_text": "inspiration"
+                "image_url": "https://afb6aa371817.ngrok.io/output/output.png",
+                "alt_text": "TeX"
             }
         ],
         text=f"{command['text']}"
     )
-
-
 
 # Start your app
 if __name__ == "__main__":
