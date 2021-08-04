@@ -1,6 +1,7 @@
 import os
 from slack_bolt import App
 import requests
+from datetime import datetime
 
 # Initializes your app with your bot token and signing secret
 app = App(
@@ -12,25 +13,30 @@ app = App(
 def tex(ack, say, command):
     content = command['text']
     # replace url
-    r = requests.post('http://0.0.0.0:5000/', json={"tex": content})
+    dt = str(datetime.now())
+    dt = dt.replace(" ", "")
+    r = requests.post('http://18.188.220.199:8000/', json={"tex": content, "dt": dt})
     code = r.status_code
     print("Code: " + str(code))
     if code != 204:
         ack()
         say("Syntax Error: " + content)
         return None
+    url = "http://18.188.220.199:8000/output/output" + dt + ".png"
+    print(url)
     ack()
     # replace image_url
     say(
         blocks = [
             {
                 "type": "image",
-                "image_url": "https://afb6aa371817.ngrok.io/output/output.png",
+                "image_url": "http://18.188.220.199:8000/output/output" + dt + ".png",
                 "alt_text": "TeX"
             }
         ],
         text=f"{command['text']}"
     )
+    say("Content: " + content)
 
 # Start your app
 if __name__ == "__main__":
