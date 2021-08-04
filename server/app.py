@@ -28,7 +28,8 @@ def home():
         p = subprocess.Popen(CMD, stdout=subprocess.PIPE, shell=True, executable='/bin/bash')
         out = p.stdout.readlines()[0].strip()
         success = int(out.decode('utf-8'))
-        print("Success: " + str(success))
+        dt = request.json['dt']
+        os.rename('output/output.png', 'output/output' + str(dt) + ".png")
         if success == 1:
             return '', 204
         else:
@@ -53,4 +54,4 @@ def send_output(filename):
     return send_from_directory("output/", filename)
 
 if __name__ == "__main__":
-    app.run(debug = True, host = "0.0.0.0", port = 5000)
+    app.run(host = "0.0.0.0", port = 8000)

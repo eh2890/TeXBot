@@ -11,5 +11,6 @@ else
 fi
 rm doc*
 rm NUL
+find . -mindepth 1 -mtime 7 -delete
 cd ../
 export STR
